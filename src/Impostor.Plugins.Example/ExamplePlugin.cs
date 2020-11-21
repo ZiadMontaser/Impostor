@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Impostor.Api.Plugins;
 using Microsoft.Extensions.Logging;
 
@@ -6,8 +6,8 @@ namespace Impostor.Plugins.Example
 {
     [ImpostorPlugin(
         package: "gg.impostor.example",
-        name: "Example",
-        author: "AeonLucid",
+        name: "Vires",
+        author: "Ziad",
         version: "1.0.0")]
     public class ExamplePlugin : PluginBase
     {
