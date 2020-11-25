@@ -1,28 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Impostor.Api.Net;
 using Impostor.Api.Innersloth.Customization;
 using Impostor.Api.Events.Player;
-using Impostor.Api.Net.Inner.Objects;
 using System.Threading.Tasks;
 using System.Threading;
 using Impostor.Api.Games;
 using Impostor.Api.Innersloth;
 using System.Numerics;
 using System.Linq;
+using Impostor.Api.Net.Messages;
+using Impostor.Server.Net.Inner;
+using Impostor.Hazel;
 
 namespace Impostor.Plugins.Example
 {
     class VireusPlugin
     {
         const int UPDATE_RATE = 100;
-        const int ROUND_LONG = 60 * 1000;
+        const int ROUND_LONG = 20 * 1000;
 
         private readonly Random Random;
         private readonly Outfit viresdOutfit;
+        private readonly Outfit deadPlayerOutfit;
 
         IClientPlayer viresed;
+
+        List<IClientPlayer> eleminatedPlyers = new List<IClientPlayer>();
 
         Outfit oldOutfit;
 
@@ -36,12 +40,13 @@ namespace Impostor.Plugins.Example
         {
             Random = random;
             viresdOutfit = new Outfit(HatType.Plague, ColorType.Yellow, SkinType.Tarmac, PetType.NoPet);
+            deadPlayerOutfit = new Outfit(HatType.NoHat , ColorType.Black , SkinType.None , PetType.NoPet);
         }
 
         public async Task SetVirusedAsync(IClientPlayer player)
         {
             //restore old player
-            if(viresed != null) {
+            if(viresed != null && !eleminatedPlyers.Contains(viresed)) {
                 await oldOutfit.DressUpAsync(viresed);
             }
             //set up the new player
@@ -61,14 +66,13 @@ namespace Impostor.Plugins.Example
             updateThread.Start();
         }
 
-        public void OnPLayerJoin(IPlayerSpawnedEvent e)
+        public void OnEndGame(IGame game)
         {
-            e.Game.Host.Character.SendChatAsync("Welcome");
-        }
-
-        public void OnPlayerChat(IPlayerChatEvent e)
-        {
-            viresed.Character.SetMurderedAsync();
+            eleminatedPlyers.Clear();
+            viresed = null;
+            updateThread.Abort();
+            isInCoolDown = false;
+            timer = 0;
         }
 
         private async Task UpdateAsync(IGame game)
@@ -83,11 +87,10 @@ namespace Impostor.Plugins.Example
                     foreach (var player in game.Players)
                     {
                         var c = player.Character;
-                        if (c.PlayerInfo.IsDead || c.NetId == viresed.Character.NetId) continue;
+                        if (isDead(player)) continue;
 
                         if (Vector2.Distance(viresedPos, c.NetworkTransform.TargetPosition) < 0.66f)
                         {
-                            
                             await SetVirusedAsync(player);
                             break;
                         }
@@ -95,17 +98,20 @@ namespace Impostor.Plugins.Example
                 }
 
                 timer += UPDATE_RATE;
+                if(timer % 5000 == 0) Console.WriteLine(timer);
                 if(timer >= ROUND_LONG)
                 {
-                    await viresed.Character.SetMurderedAsync();
+                    await KillPLayerAsync(viresed);
+                    if(ShouldEndGame(game))
+                    {
+                        await EndGameAsync(game);
+                    }
                     await SetVirusedAsync(GetNearestAlivePLayer(game));
                     timer = 0;
                 }
 
-                Console.WriteLine("Thread Compleated a loob");
                 Thread.Sleep(UPDATE_RATE);
             }
-            Console.WriteLine("Update thread finished");
         }
 
         public void StartCoolDown(int seconds)
@@ -117,11 +123,79 @@ namespace Impostor.Plugins.Example
             });
         }
 
+        private bool ShouldEndGame(IGame game)
+        {
+            int count = 0;
+            foreach (var p in game.Players)
+            {
+                if (isDead(p)) continue;
+                count++;
+            }
+            if (count <= 1) return true;
+            return false;
+        }
+
+        private async Task EndGameAsync(IGame game) {
+            await Task.Delay(3 * 1000);
+            foreach(var p in game.Players)
+            {
+                await p.Character.SetMurderedAsync();
+            }
+        }
+
+        private async Task PLayAnimationAsync(IClientPlayer targetPlayer)
+        {
+            var game = targetPlayer.Game;
+            using(var w = Hazel.MessageWriter.Get(MessageType.Reliable))
+            {
+                w.StartMessage(MessageFlags.GameData);
+                w.Write(game.Code);
+
+                //Play Animation
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(targetPlayer.Character.NetId);
+                w.Write((byte)RpcCalls.PlayAnimation);
+                w.Write((byte)2);
+                w.EndMessage();
+
+                w.EndMessage();
+
+                await game.SendToAsync(w, targetPlayer);
+            }
+        }
+
+        private async Task KillPLayerAsync(IClientPlayer player)
+        {
+            using(var w = MessageWriter.Get(MessageType.Reliable))
+            {
+                w.StartMessage(MessageFlags.GameData);
+                w.Write(player.Game.Code);
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(player.Character.NetId);
+                w.Write((byte)RpcCalls.MurderPlayer);
+                w.WritePacked(player.Character.NetId);
+                w.EndMessage();
+
+                w.EndMessage();
+
+                await player.Game.SendToAllAsync(w);
+            }
+            await player.Character.NetworkTransform.SnapToAsync(new Vector2(1, 1));
+            eleminatedPlyers.Add(player);
+            await deadPlayerOutfit.DressUpAsync(player);
+        }
+
         private IClientPlayer GetRandomAlivePLayer(IGame game)
         {
+            foreach(var p in game.Players)
+            {
+                if (p.Character.PlayerInfo.IsImpostor) return p;
+            }
             var alivePlayers = game.Players.ToList();
-            alivePlayers.ForEach((item) => {
-                if (item.Character.PlayerInfo.IsDead) alivePlayers.Remove(item);
+            alivePlayers.ForEach((p) => {
+                var c = p.Character;
+                if (c.PlayerInfo.IsDead || eleminatedPlyers.Contains(p)) alivePlayers.Remove(p);
             });
             return alivePlayers[Random.Next(alivePlayers.Count)];
         }
@@ -133,15 +207,24 @@ namespace Impostor.Plugins.Example
             var leastDis = 100f;
             foreach (var p in game.Players)
             {
-                if (p.Character.PlayerInfo.IsDead) continue;
+                if (isDead(p))
+                {
+                    continue;
+                }
                 float playerDistance = Vector2.Distance(viresPos, p.Character.NetworkTransform.TargetPosition);
-                if (leastDis > playerDistance)
+                if (playerDistance < leastDis)
                 {
                     leastDis = playerDistance;
                     player = p;
                 }
             }
             return player;
+        }
+
+        private bool isDead(IClientPlayer pLayer)
+        {
+            var c = pLayer.Character;
+            return c.PlayerInfo.IsDead || c.NetId == viresed.Character.NetId || eleminatedPlyers.Contains(pLayer);
         }
     }
 }
