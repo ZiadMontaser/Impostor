@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace Impostor.Server.Net.State
             _bannedIps.Add(ipAddress);
         }
 
-        public async ValueTask SyncSettingsAsync()
+        public async ValueTask SyncSettingsAsync(int? targetClientId = null)
         {
             if (Host.Character == null)
             {
@@ -43,7 +43,7 @@ namespace Impostor.Server.Net.State
                     writer.WriteBytesAndSize(memory.ToArray());
                 }
 
-                await FinishRpcAsync(writer);
+                await FinishRpcAsync(writer , targetClientId);
             }
         }
 

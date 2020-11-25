@@ -6,6 +6,7 @@ using Impostor.Api.Innersloth.Customization;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Inner.Objects;
 using Impostor.Api.Net.Messages;
+using Impostor.Hazel;
 using Impostor.Server.Net.Inner;
 
 namespace Impostor.Plugins.Example
@@ -35,10 +36,39 @@ namespace Impostor.Plugins.Example
 
         public async ValueTask DressUpAsync(IClientPlayer player)
         {
-            await player.Character.SetHatAsync(_hat);
-            await player.Character.SetColorAsync(_color);
-            await player.Character.SetSkinAsync(_skin);
-            await player.Character.SetPetAsync(_pet); 
+            using(var w = MessageWriter.Get(MessageType.Reliable))
+            {
+                w.StartMessage(MessageFlags.GameData);
+                w.Write(player.Game.Code);
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(player.Character.NetId);
+                w.Write((byte)RpcCalls.SetHat);
+                w.WritePacked((uint)_hat);
+                w.EndMessage();
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(player.Character.NetId);
+                w.Write((byte)RpcCalls.SetColor);
+                w.WritePacked((uint)_color);
+                w.EndMessage();
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(player.Character.NetId);
+                w.Write((byte)RpcCalls.SetSkin);
+                w.WritePacked((uint)_skin);
+                w.EndMessage();
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(player.Character.NetId);
+                w.Write((byte)RpcCalls.SetPet);
+                w.WritePacked((uint)_pet);
+                w.EndMessage();
+
+                w.EndMessage();
+
+                await player.Game.SendToAllAsync(w);
+            }
         }
     }
 }

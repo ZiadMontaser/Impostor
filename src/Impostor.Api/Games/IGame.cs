@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Impostor.Api.Innersloth;
@@ -51,7 +51,7 @@ namespace Impostor.Api.Games
         ///     Necessary to do if you modified it, otherwise it won't be used.
         /// </summary>
         /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-        ValueTask SyncSettingsAsync();
+        ValueTask SyncSettingsAsync(int? targetClientId = null);
 
         /// <summary>
         ///     Sets the specified list as Impostor on all connected players.

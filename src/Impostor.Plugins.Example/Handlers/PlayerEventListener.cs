@@ -14,7 +14,7 @@ namespace Impostor.Plugins.Example.Handlers
 
         private readonly ILogger<PlayerEventListener> _logger;
 
-        Gamemodes gamemodes = Gamemodes.Standerd;
+        Gamemodes gamemodes = Gamemodes.HotPotato;
         VireusPlugin VireusPlugin = new VireusPlugin(Random);
 
         public PlayerEventListener(ILogger<PlayerEventListener> logger)
@@ -28,17 +28,7 @@ namespace Impostor.Plugins.Example.Handlers
             if (gamemodes == Gamemodes.HotPotato)
             {
                 _logger.LogDebug(e.PlayerControl.PlayerInfo.PlayerName + " spawned");
-                e.Game.Options.IsDefaults = false;
-                e.Game.Options.EmergencyCooldown = int.MaxValue;
-                e.Game.Options.NumEmergencyMeetings = 0;
-                e.Game.Options.NumCommonTasks = 2;
-                e.Game.Options.NumLongTasks = 3;
-                e.Game.Options.NumShortTasks = 5;
-                e.Game.Options.KillCooldown = float.MaxValue;
-                e.Game.Options.PlayerSpeedMod = 1.5f;
-                e.Game.Options.VotingTime = 1;
-                e.Game.Options.DiscussionTime = 0;
-                e.Game.SyncSettingsAsync();
+                VireusPlugin.SetGameOptions(e.Game);
             }
             else
             {
