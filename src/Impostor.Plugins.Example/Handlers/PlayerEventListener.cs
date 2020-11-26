@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
 using Impostor.Api.Innersloth.Customization;
+using Impostor.Plugins.Example.Commands;
 using Microsoft.Extensions.Logging;
 
 namespace Impostor.Plugins.Example.Handlers
@@ -16,6 +17,7 @@ namespace Impostor.Plugins.Example.Handlers
 
         Gamemodes gamemodes = Gamemodes.HotPotato;
         VireusPlugin VireusPlugin = new VireusPlugin(Random);
+        CommandPlugin CommandPlugin = new CommandPlugin();
 
         public PlayerEventListener(ILogger<PlayerEventListener> logger)
         {
@@ -64,6 +66,7 @@ namespace Impostor.Plugins.Example.Handlers
         [EventListener]
         public async ValueTask OnPlayerChat(IPlayerChatEvent e)
         {
+            CommandPlugin.OnPLayerChat(e);
             //VireusPlugin.OnPlayerChat(e);
             if (e.Message.StartsWith('/'))
             {
