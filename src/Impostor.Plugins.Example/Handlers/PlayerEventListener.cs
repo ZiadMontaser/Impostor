@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
 using Impostor.Api.Innersloth.Customization;
+using Impostor.Plugins.Example.Gamemode;
 using Impostor.Plugins.Example.Commands;
 using Microsoft.Extensions.Logging;
+using Impostor.Plugins.Example.Gamemode;
 
 namespace Impostor.Plugins.Example.Handlers
 {
@@ -15,8 +17,6 @@ namespace Impostor.Plugins.Example.Handlers
 
         private readonly ILogger<PlayerEventListener> _logger;
 
-        Gamemodes gamemodes = Gamemodes.HotPotato;
-        VireusPlugin VireusPlugin = new VireusPlugin(Random);
         CommandPlugin CommandPlugin = new CommandPlugin();
 
         public PlayerEventListener(ILogger<PlayerEventListener> logger)
@@ -27,34 +27,19 @@ namespace Impostor.Plugins.Example.Handlers
         [EventListener]
         public void OnPlayerSpawned(IPlayerSpawnedEvent e)
         {
-            if (gamemodes == Gamemodes.HotPotato)
-            {
-                _logger.LogDebug(e.PlayerControl.PlayerInfo.PlayerName + " spawned");
-                VireusPlugin.SetGameOptions(e.Game);
-            }
-            else
-            {
-                e.Game.Options.IsDefaults = true;
-                e.Game.SyncSettingsAsync();
-            }
+            GamemodeManager.games[e.Game].OnPlayerSpawnd(e);
         }
 
         [EventListener]
         public void OnGameStarted(IGameStartedEvent e)
         {
-            if (gamemodes == Gamemodes.HotPotato)
-            {
-                VireusPlugin.OnStartGame(e.Game);
-            }
+            GamemodeManager.games[e.Game].OnGameStarted(e);
         }
 
         [EventListener]
         public void OnGameEnded(IGameEndedEvent e)
         {
-            if (gamemodes == Gamemodes.HotPotato)
-            {
-                VireusPlugin.OnEndGame(e.Game);
-            }
+            GamemodeManager.games[e.Game].OnGameEnded(e);
         }
 
         [EventListener]

@@ -1,4 +1,4 @@
-namespace Impostor.Plugins.Example
+namespace Impostor.Plugins.Example.Gamemode
 {
     enum Gamemodes
     {

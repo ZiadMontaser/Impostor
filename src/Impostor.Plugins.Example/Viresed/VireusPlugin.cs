@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Impostor.Api.Net;
 using Impostor.Api.Innersloth.Customization;
 using Impostor.Api.Events.Player;
+using Impostor.Api.Events;
 using System.Threading.Tasks;
 using System.Threading;
 using Impostor.Api.Games;
@@ -12,7 +13,7 @@ using System.Linq;
 
 namespace Impostor.Plugins.Example
 {
-    class VireusPlugin
+    class VireusPlugin : Plugin
     {
         const int UPDATE_RATE = 100;
         const int ROUND_LONG = 20 * 1000;
@@ -33,9 +34,9 @@ namespace Impostor.Plugins.Example
 
         int timer = 0;
 
-        public VireusPlugin(Random random)
+        public VireusPlugin()
         {
-            Random = random;
+            Random = new Random();
             viresdOutfit = new Outfit(HatType.Plague, ColorType.Yellow, SkinType.Tarmac, PetType.NoPet);
             deadPlayerOutfit = new Outfit(HatType.NoHat , ColorType.Black , SkinType.None , PetType.NoPet);
         }
@@ -56,30 +57,29 @@ namespace Impostor.Plugins.Example
             StartCoolDown(3);
         }
 
-        public void OnStartGame(IGame game)
+        public override void OnGameStarted(IGameStartedEvent e)
         {
-            SetVirusedAsync(GetRandomAlivePLayer(game));
+            SetVirusedAsync(GetRandomAlivePLayer(e.Game));
 
-            updateThread = new Thread(async()=> await UpdateAsync(game));
+            updateThread = new Thread(async () => await UpdateAsync(e.Game));
 
             updateThread.Start();
         }
 
-        public async Task OnPLayerLeft(IClientPlayer player)
-        {
-            if(player == viresed)
-            {
-                var next = GetNearestAlivePLayer(player.Game);
-                if(next == null)
-                {
-                    next = GetRandomAlivePLayer(player.Game);
-                }
+        //public override void OnPlayerLeft(IGamePlayerLeftEvent e)
+        //{
+        //    if ( == viresed)
+        //    {
+        //        var next = GetNearestAlivePLayer(player.Game);
+        //        if (next == null)
+        //        {
+        //            next = GetRandomAlivePLayer(player.Game);
+        //        }
 
-                await SetVirusedAsync(next);
-            }
-        }
-
-        public void OnEndGame(IGame game)
+        //         SetVirusedAsync(next);
+        //    }
+        //}
+        public override void OnGameEnded(IGameEndedEvent e)
         {
             eleminatedPlyers.Clear();
             viresed = null;

@@ -1,5 +1,6 @@
 using System;
 using Impostor.Api.Events;
+using Impostor.Plugins.Example.Gamemode;
 
 namespace Impostor.Plugins.Example.Handlers
 {
@@ -15,6 +16,15 @@ namespace Impostor.Plugins.Example.Handlers
         public void OnGameCreated(IGameCreatedEvent e)
         {
             Console.WriteLine("Game > created");
+            GamemodeManager.CreateGame(e.Game);
+        }
+
+
+        [EventListener]
+        public void OnGameDestroyed(IGameDestroyedEvent e)
+        {
+            Console.WriteLine("Game > destroyed");
+            GamemodeManager.DeleteGame(e.Game);
         }
 
         [EventListener]
@@ -43,11 +53,6 @@ namespace Impostor.Plugins.Example.Handlers
             Console.WriteLine("- Reason: " + e.GameOverReason);
         }
 
-        [EventListener]
-        public void OnGameDestroyed(IGameDestroyedEvent e)
-        {
-            Console.WriteLine("Game > destroyed");
-        }
 
         [EventListener]
         public void OnPlayerJoined(IGamePlayerJoinedEvent e)
