@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Impostor.Plugins.Example.Gamemode;
 
 namespace Impostor.Plugins.Example.Standerd
 {
     class StanderdPlugin  :Plugin
     {
+        public StanderdPlugin() => mode = Gamemodes.Standerd;
     }
 }

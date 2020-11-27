@@ -20,48 +20,57 @@ namespace Impostor.Plugins.Example.Gamemode
         {
             if(!player.IsHost)
             {
-                CommandPlugin.Reply(player, "[FF0000]Error: [a9a9a9] Your not allowd to do that. ");
+                CommandPlugin.Reply(player, $"{Colors.Red}Error: {Colors.DarkGrey} Your not allowd to do that. ");
                 return;
             }
             if(player.Game.GameState == GameStates.Started)
             {
-                CommandPlugin.Reply(player, "[FF0000]Error: [a9a9a9] Your Cant change Gamemode mid game.");
+                CommandPlugin.Reply(player, $"{Colors.Red}Error: {Colors.DarkGrey} Your Cant change Gamemode mid game.");
                 return;
             }
 
             if (param.Length < 2)
             {
                 CommandPlugin.Reply(player, GetAllGamemodes());
+                return;
             }
             else if(int.TryParse(param[1] , out int g))
             {
+                g--;
                 if(g < Enum.GetValues(typeof(Gamemodes)).Length)
                 {
                     GamemodeManager.SetGamemode(player.Game, (Gamemodes)g);
+                    onGamemodeChange(player);
                     return;
                 }
             }
             else if(Enum.TryParse(param[1] , out Gamemodes ga))
             {
                 GamemodeManager.SetGamemode(player.Game, ga);
+                onGamemodeChange(player);
                 return;
             }
             else
             {
-                CommandPlugin.Reply(player, "[FF0000]Error: [a9a9a9] Pleas enter valid data ");
+                CommandPlugin.Reply(player, $"{Colors.Red}Error: {Colors.DarkGrey} Pleas enter valid data ");
                 return;
             }
-            CommandPlugin.Reply(player, "[FF0000]Error: [a9a9a9] Pleas enter valid data ");
+            CommandPlugin.Reply(player, $"{Colors.Red}Error: {Colors.DarkGrey} Pleas enter valid data ");
+        }
+
+        void onGamemodeChange(IClientPlayer player)
+        {
+            CommandPlugin.Reply(player, $"{Colors.DarkGrey}Gamemode Changed to {GamemodeManager.GetGamemode(player.Game)}");
         }
 
         string GetAllGamemodes()
         {
             var builder = new StringBuilder();
-            builder.Append("Avilible Gamemodes");
+            builder.Append("Avilible Gamemodes \n");
             for(int i = 0; i < Enum.GetValues(typeof(Gamemodes)).Length; i++)
             {
                 var gamemode = (Gamemodes)i;
-                builder.Append($"{i}- {gamemode} \n");
+                builder.Append($"{i+1}- {gamemode} \n");
             }
             return builder.ToString();
         }

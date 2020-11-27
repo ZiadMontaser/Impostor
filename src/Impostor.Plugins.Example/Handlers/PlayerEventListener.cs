@@ -3,11 +3,9 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
-using Impostor.Api.Innersloth.Customization;
 using Impostor.Plugins.Example.Gamemode;
 using Impostor.Plugins.Example.Commands;
 using Microsoft.Extensions.Logging;
-using Impostor.Plugins.Example.Gamemode;
 
 namespace Impostor.Plugins.Example.Handlers
 {

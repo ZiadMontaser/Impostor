@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Impostor.Api.Games;
 using Impostor.Plugins.Example.Standerd;
@@ -39,5 +38,11 @@ namespace Impostor.Plugins.Example.Gamemode
         {
             games.Remove(game);
         }
+
+        public static Gamemodes GetGamemode(IGame game)
+        {
+            return games[game].mode;
+        }
+
     }
 }

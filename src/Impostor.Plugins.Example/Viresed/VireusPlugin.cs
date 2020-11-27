@@ -10,6 +10,7 @@ using Impostor.Api.Games;
 using Impostor.Api.Innersloth;
 using System.Numerics;
 using System.Linq;
+using Impostor.Plugins.Example.Gamemode;
 
 namespace Impostor.Plugins.Example
 {
@@ -36,6 +37,7 @@ namespace Impostor.Plugins.Example
 
         public VireusPlugin()
         {
+            mode = Gamemodes.HotPotato;
             Random = new Random();
             viresdOutfit = new Outfit(HatType.Plague, ColorType.Yellow, SkinType.Tarmac, PetType.NoPet);
             deadPlayerOutfit = new Outfit(HatType.NoHat , ColorType.Black , SkinType.None , PetType.NoPet);

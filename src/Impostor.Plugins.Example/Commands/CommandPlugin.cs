@@ -68,7 +68,7 @@ namespace Impostor.Plugins.Example.Commands
                 w.StartMessage(GameDataTag.RpcFlag);
                 w.WritePacked(server);
                 w.Write((byte)RpcCalls.SetName);
-                w.Write("[FF0000]Server");
+                w.Write($"{Colors.Red}Server");
                 w.EndMessage();
 
                 w.StartMessage(GameDataTag.RpcFlag);
@@ -82,6 +82,10 @@ namespace Impostor.Plugins.Example.Commands
                 w.Write((byte)RpcCalls.SetName);
                 w.Write(oldName);
                 w.EndMessage();
+
+                w.EndMessage();
+
+                player.Game.SendToAsync(w , player.Client.Id);
             }
         }
 
