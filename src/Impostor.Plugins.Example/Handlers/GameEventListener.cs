@@ -31,6 +31,7 @@ namespace Impostor.Plugins.Example.Handlers
         public void OnGameStarting(IGameStartingEvent e)
         {
             Console.WriteLine("Game > starting");
+            GamemodeManager.games[e.Game].SetGameOptions(e.Game);
         }
 
         [EventListener]
@@ -51,6 +52,8 @@ namespace Impostor.Plugins.Example.Handlers
         {
             Console.WriteLine("Game > ended");
             Console.WriteLine("- Reason: " + e.GameOverReason);
+            e.Game.Options.IsDefaults = true;
+            e.Game.SyncSettingsAsync();
         }
 
 

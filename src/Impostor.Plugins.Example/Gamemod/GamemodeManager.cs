@@ -6,7 +6,7 @@ namespace Impostor.Plugins.Example.Gamemode
 {
     static class GamemodeManager
     {
-        const Gamemodes DEFAULT_GAMEMODE = Gamemodes.Standerd;
+        const Gamemodes DEFAULT_GAMEMODE = Gamemodes.HotPotato;
 
         public static Dictionary<IGame, Plugin> games;
 

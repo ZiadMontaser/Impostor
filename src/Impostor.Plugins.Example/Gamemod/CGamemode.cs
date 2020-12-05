@@ -10,9 +10,15 @@ using Impostor.Plugins.Example.Commands;
 namespace Impostor.Plugins.Example.Gamemode
 {
     [Command]
+    class CGm : CGamemode
+    {
+        public override string Names => "gm";
+    }
+
+    [Command]
     class CGamemode : ICommand
     {
-        public string Names => "gamemode";
+        public virtual string Names => "gamemode";
 
         public string Discription => "Changes Gamemode using: /gamemode <gamemode>";
 
@@ -60,7 +66,7 @@ namespace Impostor.Plugins.Example.Gamemode
 
         void onGamemodeChange(IClientPlayer player)
         {
-            CommandPlugin.Reply(player, $"{Colors.DarkGrey}Gamemode Changed to {GamemodeManager.GetGamemode(player.Game)}");
+            CommandPlugin.ReplayToAll(player.Game, $"{Colors.DarkGrey}Gamemode Changed to {Colors.Green}{GamemodeManager.GetGamemode(player.Game)}{Colors.DarkGrey} .");
         }
 
         string GetAllGamemodes()

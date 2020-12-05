@@ -9,10 +9,16 @@ using Impostor.Api.Net;
 namespace Impostor.Plugins.Example.Commands
 {
     [Command]
+    class CSC : CSkinChange
+    {
+        public override string Names => "of";
+    }
+
+    [Command]
     class CSkinChange : ICommand
     {
         Random random = new Random();
-        public string Names => "outfit";
+        public virtual string Names => "outfit";
 
         public string Discription => "This Command Changes Your Outfit randomly";
 

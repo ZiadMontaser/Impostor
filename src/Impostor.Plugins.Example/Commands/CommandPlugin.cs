@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
+using Impostor.Api.Games;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Messages;
 using Impostor.Server.Net.Inner;
@@ -37,7 +38,7 @@ namespace Impostor.Plugins.Example.Commands
             
             foreach(var command in commands)
             {
-                if (command.Names != param[0]) continue;
+                if (command.Names.ToLower() != param[0].ToLower()) continue;
 
                 command.excute(e.ClientPlayer, param);
             }
@@ -87,6 +88,41 @@ namespace Impostor.Plugins.Example.Commands
 
                 player.Game.SendToAsync(w , player.Client.Id);
             }
+        }
+
+        public static void ReplayToAll(IGame game, string message)
+        {
+            var server = game.Host.Character.NetId;
+            var oldName = game.Host.Character.PlayerInfo.PlayerName;
+
+            using (var w = Hazel.MessageWriter.Get(MessageType.Reliable))
+            {
+                w.StartMessage(MessageFlags.GameData);
+                w.Write(game.Code);
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(server);
+                w.Write((byte)RpcCalls.SetName);
+                w.Write($"{Colors.Red}Server");
+                w.EndMessage();
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(server);
+                w.Write((byte)RpcCalls.SendChat);
+                w.Write(message);
+                w.EndMessage();
+
+                w.StartMessage(GameDataTag.RpcFlag);
+                w.WritePacked(server);
+                w.Write((byte)RpcCalls.SetName);
+                w.Write(oldName);
+                w.EndMessage();
+
+                w.EndMessage();
+
+                game.SendToAllExceptAsync(w ,game.Host.Client.Id);
+            }
+            Reply(game.Host , message);
         }
 
     }

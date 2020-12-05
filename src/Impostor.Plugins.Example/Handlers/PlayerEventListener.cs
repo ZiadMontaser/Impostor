@@ -43,7 +43,7 @@ namespace Impostor.Plugins.Example.Handlers
         [EventListener]
         public void OnPlayerDestroyed(IPlayerDestroyedEvent e)
         {
-            
+            GamemodeManager.games[e.Game].OnPlayerDestroyed(e);
         }
 
         [EventListener]
@@ -61,12 +61,6 @@ namespace Impostor.Plugins.Example.Handlers
                         break;
                 }
             }
-        }
-
-        [EventListener]
-        public void OnPlayerReportedBodyEvent(IPlayerReportedBodyEvent e)
-        {
-            _logger.LogDebug("Player reported body");
         }
     }
 }

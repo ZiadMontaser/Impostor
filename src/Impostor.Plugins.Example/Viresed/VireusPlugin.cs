@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Impostor.Api.Net;
 using Impostor.Api.Innersloth.Customization;
-using Impostor.Api.Events.Player;
 using Impostor.Api.Events;
 using System.Threading.Tasks;
 using System.Threading;
@@ -11,13 +10,15 @@ using Impostor.Api.Innersloth;
 using System.Numerics;
 using System.Linq;
 using Impostor.Plugins.Example.Gamemode;
+using Impostor.Plugins.Example.Commands;
+using Impostor.Api.Events.Player;
 
 namespace Impostor.Plugins.Example
 {
     class VireusPlugin : Plugin
     {
         const int UPDATE_RATE = 100;
-        const int ROUND_LONG = 20 * 1000;
+        const int ROUND_LONG = 60 * 1000;
 
         private readonly Random Random;
         private readonly Outfit viresdOutfit;
@@ -34,6 +35,7 @@ namespace Impostor.Plugins.Example
         bool isInCoolDown = false;
 
         int timer = 0;
+        int nextTick = 10*1000;
 
         public VireusPlugin()
         {
@@ -68,25 +70,20 @@ namespace Impostor.Plugins.Example
             updateThread.Start();
         }
 
-        //public override void OnPlayerLeft(IGamePlayerLeftEvent e)
-        //{
-        //    if ( == viresed)
-        //    {
-        //        var next = GetNearestAlivePLayer(player.Game);
-        //        if (next == null)
-        //        {
-        //            next = GetRandomAlivePLayer(player.Game);
-        //        }
-
-        //         SetVirusedAsync(next);
-        //    }
-        //}
         public override void OnGameEnded(IGameEndedEvent e)
         {
             eleminatedPlyers.Clear();
             viresed = null;
             isInCoolDown = false;
             timer = 0;
+        }
+
+        public override void OnPlayerDestroyed(IPlayerDestroyedEvent e)
+        {
+            if(e.ClientPlayer == viresed)
+            {
+                SetVirusedAsync(GetNearestAlivePLayer(e.Game));
+            }
         }
 
         private async Task UpdateAsync(IGame game)
@@ -113,6 +110,14 @@ namespace Impostor.Plugins.Example
 
                 timer += UPDATE_RATE;
                 if(timer % 5000 == 0) Console.WriteLine(timer);
+
+                if(timer >= nextTick)
+                {
+                    //Do Stuff
+                    CommandPlugin.ReplayToAll(game , $"Time Left {ROUND_LONG - timer}");
+                    nextTick = GenerateNextTickDelay() + timer ;
+                }
+
                 if(timer >= ROUND_LONG)
                 {
                     await KillPLayerAsync(viresed);
@@ -123,12 +128,18 @@ namespace Impostor.Plugins.Example
                     else
                     {
                         await SetVirusedAsync(GetNearestAlivePLayer(game));
+                        nextTick = 0; //reset ticker
                     } 
                     timer = 0;
                 }
-
                 Thread.Sleep(UPDATE_RATE);
             }
+        }
+
+        int GenerateNextTickDelay()
+        {
+            var timeLeft = ROUND_LONG - timer;
+            return timeLeft / 5;
         }
 
         public void StartCoolDown(int seconds)
@@ -228,7 +239,7 @@ namespace Impostor.Plugins.Example
             player.Game.SyncSettingsAsync(player.Client.Id);
         }
 
-        public void SetGameOptions(IGame game)
+        public override void SetGameOptions(IGame game)
         {
             game.Options.IsDefaults = false;
             game.Options.EmergencyCooldown = int.MaxValue;
@@ -237,6 +248,8 @@ namespace Impostor.Plugins.Example
             game.Options.NumLongTasks = 3;
             game.Options.NumShortTasks = 5;
             game.Options.KillCooldown = float.MaxValue;
+            game.Options.CrewLightMod = 0.75f;
+            game.Options.ImpostorLightMod = 0.75f;
             game.Options.PlayerSpeedMod = 1.5f;
             game.Options.VotingTime = 1;
             game.Options.DiscussionTime = 0;
