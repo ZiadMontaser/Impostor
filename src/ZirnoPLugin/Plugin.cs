@@ -1,9 +1,9 @@
 using Impostor.Api.Events.Player;
 using Impostor.Api.Events;
-using Impostor.Plugins.Example.Gamemode;
+using ZirnoPlugin.Gamemode;
 using Impostor.Api.Games;
 
-namespace Impostor.Plugins.Example
+namespace ZirnoPlugin
 {
      class Plugin
     {

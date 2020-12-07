@@ -1,10 +1,11 @@
-﻿using Impostor.Api.Events;
+using Impostor.Api.Events;
 using Impostor.Api.Plugins;
-using Impostor.Plugins.Example.Handlers;
+using ZirnoPlugin.Discord;
+using ZirnoPlugin.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Impostor.Plugins.Example
+namespace ZirnoPlugin
 {
     public class ExamplePluginStartup : IPluginStartup
     {
@@ -17,6 +18,7 @@ namespace Impostor.Plugins.Example
             services.AddSingleton<IEventListener, GameEventListener>();
             services.AddSingleton<IEventListener, PlayerEventListener>();
             services.AddSingleton<IEventListener, MeetingEventListener>();
+            services.AddSingleton<IEventListener, DiscordBot>();
         }
     }
 }

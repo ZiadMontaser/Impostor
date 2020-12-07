@@ -1,4 +1,4 @@
-﻿{
+{
   "Server": {
     "PublicIp": "127.0.0.1",
     "PublicPort": 22023,
@@ -7,5 +7,11 @@
   },
   "AntiCheat": {
     "BanIpFromGame": true
+  },
+  "PluginLoader": {
+    "Paths": [
+      "C:\\Users\\ziadm\\source\\repos\\MyImpostor\\src\\ZirnoPLugin\\bin\\Debug\\net5.0"
+    ],
+    "Libraries": []
   }
 }

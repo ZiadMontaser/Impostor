@@ -1,4 +1,4 @@
-namespace Impostor.Plugins.Example.Gamemode
+namespace ZirnoPlugin.Gamemode
 {
     enum Gamemodes
     {

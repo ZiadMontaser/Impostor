@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Impostor.Api.Net;
 
-namespace Impostor.Plugins.Example.Commands
+namespace ZirnoPlugin.Commands
 {
     interface ICommand
     {

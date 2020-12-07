@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Impostor.Api.Innersloth.Customization;
 using Impostor.Api.Net;
+using ZirnoPlugin.Viresed;
 
-namespace Impostor.Plugins.Example.Commands
+namespace ZirnoPlugin.Commands
 {
     [Command]
     class CSC : CSkinChange

@@ -9,11 +9,11 @@ using Impostor.Api.Games;
 using Impostor.Api.Innersloth;
 using System.Numerics;
 using System.Linq;
-using Impostor.Plugins.Example.Gamemode;
-using Impostor.Plugins.Example.Commands;
+using ZirnoPlugin.Gamemode;
+using ZirnoPlugin.Commands;
 using Impostor.Api.Events.Player;
 
-namespace Impostor.Plugins.Example
+namespace ZirnoPlugin.Viresed
 {
     class VireusPlugin : Plugin
     {
@@ -165,9 +165,10 @@ namespace Impostor.Plugins.Example
 
         private async Task EndGameAsync(IGame game) {
             await Task.Delay(1 * 1000);
+            var impostor = game.Players.ToList().Find((x) => x.Character.PlayerInfo.IsImpostor && !x.Character.PlayerInfo.IsDead);
             foreach(var p in game.Players)
             {
-                await p.Character.SetMurderedAsync();
+                await p.Character.SetMurderedByAsync(impostor);
             }
         }
 

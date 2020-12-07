@@ -7,9 +7,10 @@ using Impostor.Api.Events.Player;
 using Impostor.Api.Games;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Messages;
+using Impostor.Hazel;
 using Impostor.Server.Net.Inner;
 
-namespace Impostor.Plugins.Example.Commands
+namespace ZirnoPlugin.Commands
 {
     class CommandPlugin : Plugin
     {
@@ -61,7 +62,7 @@ namespace Impostor.Plugins.Example.Commands
                 oldName = player.Character.PlayerInfo.PlayerName;
             }
 
-            using(var w = Hazel.MessageWriter.Get(MessageType.Reliable))
+            using(var w = MessageWriter.Get(MessageType.Reliable))
             {
                 w.StartMessage(MessageFlags.GameData);
                 w.Write(player.Game.Code);
@@ -95,7 +96,7 @@ namespace Impostor.Plugins.Example.Commands
             var server = game.Host.Character.NetId;
             var oldName = game.Host.Character.PlayerInfo.PlayerName;
 
-            using (var w = Hazel.MessageWriter.Get(MessageType.Reliable))
+            using (var w = MessageWriter.Get(MessageType.Reliable))
             {
                 w.StartMessage(MessageFlags.GameData);
                 w.Write(game.Code);

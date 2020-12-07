@@ -9,9 +9,9 @@ using Discord.Rest;
 using Impostor.Api.Events;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Impostor.Plugins.Example.Handlers;
+using ZirnoPlugin.Handlers;
 
-namespace Impostor.Plugins.Example.Discord
+namespace ZirnoPlugin.Discord
 {
     class DiscordBot : IEventListener
     {

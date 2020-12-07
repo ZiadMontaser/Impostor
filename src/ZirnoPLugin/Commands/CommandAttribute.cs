@@ -1,6 +1,6 @@
 using System;
 
-namespace Impostor.Plugins.Example.Commands
+namespace ZirnoPlugin.Commands
 {
     [AttributeUsage(AttributeTargets.Class)]
     class CommandAttribute : Attribute

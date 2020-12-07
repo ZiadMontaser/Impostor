@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Impostor.Api.Games;
-using Impostor.Plugins.Example.Standerd;
+using ZirnoPlugin.Standerd;
+using ZirnoPlugin.Viresed;
 
-namespace Impostor.Plugins.Example.Gamemode
+namespace ZirnoPlugin.Gamemode
 {
     static class GamemodeManager
     {

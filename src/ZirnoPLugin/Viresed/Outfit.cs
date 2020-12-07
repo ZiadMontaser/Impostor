@@ -9,7 +9,7 @@ using Impostor.Api.Net.Messages;
 using Impostor.Hazel;
 using Impostor.Server.Net.Inner;
 
-namespace Impostor.Plugins.Example
+namespace ZirnoPlugin.Viresed
 {
     public class Outfit
     {

@@ -1,4 +1,4 @@
-namespace Impostor.Plugins.Example.Commands
+namespace ZirnoPlugin.Commands
 {
     public static class Colors
     {

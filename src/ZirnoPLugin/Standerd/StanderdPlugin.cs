@@ -1,6 +1,6 @@
-using Impostor.Plugins.Example.Gamemode;
+using ZirnoPlugin.Gamemode;
 
-namespace Impostor.Plugins.Example.Standerd
+namespace ZirnoPlugin.Standerd
 {
     class StanderdPlugin  :Plugin
     {

@@ -1,19 +1,19 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Impostor.Api.Plugins;
 using Microsoft.Extensions.Logging;
 
-namespace Impostor.Plugins.Example
+namespace ZirnoPlugin
 {
     [ImpostorPlugin(
-        package: "gg.impostor.example",
-        name: "Example",
-        author: "AeonLucid",
+        package: "ZirnoPlugin",
+        name: "ZirnoServerPlugin",
+        author: "Ziad",
         version: "1.0.0")]
-    public class ExamplePlugin : PluginBase
+    public class ZirnoPlugin : PluginBase
     {
-        private readonly ILogger<ExamplePlugin> _logger;
+        private readonly ILogger<ZirnoPlugin> _logger;
 
-        public ExamplePlugin(ILogger<ExamplePlugin> logger)
+        public ZirnoPlugin(ILogger<ZirnoPlugin> logger)
         {
             _logger = logger;
         }

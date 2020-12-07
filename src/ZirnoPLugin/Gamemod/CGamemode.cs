@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
-using Impostor.Plugins.Example.Commands;
+using ZirnoPlugin.Commands;
 
-namespace Impostor.Plugins.Example.Gamemode
+namespace ZirnoPlugin.Gamemode
 {
     [Command]
     class CGm : CGamemode

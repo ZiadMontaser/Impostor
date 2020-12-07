@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
-using Impostor.Plugins.Example.Gamemode;
-using Impostor.Plugins.Example.Commands;
+using Impostor.Api.Innersloth.Customization;
 using Microsoft.Extensions.Logging;
 
 namespace Impostor.Plugins.Example.Handlers
@@ -15,8 +14,6 @@ namespace Impostor.Plugins.Example.Handlers
 
         private readonly ILogger<PlayerEventListener> _logger;
 
-        CommandPlugin CommandPlugin = new CommandPlugin();
-
         public PlayerEventListener(ILogger<PlayerEventListener> logger)
         {
             _logger = logger;
@@ -25,42 +22,79 @@ namespace Impostor.Plugins.Example.Handlers
         [EventListener]
         public void OnPlayerSpawned(IPlayerSpawnedEvent e)
         {
-            GamemodeManager.games[e.Game].OnPlayerSpawnd(e);
-        }
+            _logger.LogDebug(e.PlayerControl.PlayerInfo.PlayerName + " spawned");
 
-        [EventListener]
-        public void OnGameStarted(IGameStartedEvent e)
-        {
-            GamemodeManager.games[e.Game].OnGameStarted(e);
-        }
+            // Need to make a local copy because it might be possible that
+            // the event gets changed after being handled.
+            var clientPlayer = e.ClientPlayer;
+            var playerControl = e.PlayerControl;
 
-        [EventListener]
-        public void OnGameEnded(IGameEndedEvent e)
-        {
-            GamemodeManager.games[e.Game].OnGameEnded(e);
+            /*
+            Task.Run(async () =>
+            {
+                Console.WriteLine("Starting player task.");
+
+                // Give the player time to load.
+                await Task.Delay(TimeSpan.FromSeconds(3));
+
+                while (clientPlayer.Client.Connection != null &&
+                       clientPlayer.Client.Connection.IsConnected)
+                {
+                    // Modify player properties.
+                    await playerControl.SetColorAsync((byte) Random.Next(1, 9));
+                    await playerControl.SetHatAsync((uint) Random.Next(1, 9));
+                    await playerControl.SetSkinAsync((uint) Random.Next(1, 9));
+                    await playerControl.SetPetAsync((uint) Random.Next(1, 9));
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(5000));
+                }
+
+                _logger.LogDebug("Stopping player task.");
+            });
+            */
         }
 
         [EventListener]
         public void OnPlayerDestroyed(IPlayerDestroyedEvent e)
         {
-            GamemodeManager.games[e.Game].OnPlayerDestroyed(e);
+            _logger.LogDebug(e.PlayerControl.PlayerInfo.PlayerName + " destroyed");
         }
 
         [EventListener]
         public async ValueTask OnPlayerChat(IPlayerChatEvent e)
         {
-            CommandPlugin.OnPLayerChat(e);
-            //VireusPlugin.OnPlayerChat(e);
-            if (e.Message.StartsWith('/'))
+            _logger.LogDebug(e.PlayerControl.PlayerInfo.PlayerName + " said " + e.Message);
+
+            if (e.Message == "test")
             {
-                var command = e.Message.Split(' ');
-                switch (command[0])
-                {
-                    case "/tp":
-                        e.PlayerControl.NetworkTransform.SnapToAsync(new Vector2(float.Parse(command[1]), float.Parse(command[2])));
-                        break;
-                }
+                e.Game.Options.KillCooldown = 0;
+                e.Game.Options.NumImpostors = 2;
+                e.Game.Options.PlayerSpeedMod = 5;
+
+                await e.Game.SyncSettingsAsync();
             }
+
+            if (e.Message == "look")
+            {
+                await e.PlayerControl.SetColorAsync(ColorType.Pink);
+                await e.PlayerControl.SetHatAsync(HatType.Cheese);
+                await e.PlayerControl.SetSkinAsync(SkinType.Police);
+                await e.PlayerControl.SetPetAsync(PetType.Ufo);
+            }
+
+            if (e.Message == "snap")
+            {
+                await e.PlayerControl.NetworkTransform.SnapToAsync(new Vector2(1, 1));
+            }
+
+            await e.PlayerControl.SetNameAsync(e.Message);
+            await e.PlayerControl.SendChatAsync(e.Message);
+        }
+
+        [EventListener]
+        public void OnPlayerStartMeetingEvent(IPlayerStartMeetingEvent e)
+        {
+            _logger.LogDebug($"Player {e.PlayerControl.PlayerInfo.PlayerName} start meeting, reason: " + (e.Body==null ? "Emergency call button" : "Found the body of the player "+e.Body.PlayerInfo.PlayerName));
         }
     }
 }
