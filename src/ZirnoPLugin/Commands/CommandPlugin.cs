@@ -5,6 +5,7 @@ using System.Reflection;
 using Impostor.Api.Events;
 using Impostor.Api.Events.Player;
 using Impostor.Api.Games;
+using Impostor.Api.Innersloth.Customization;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Messages;
 using Impostor.Hazel;
@@ -47,43 +48,48 @@ namespace ZirnoPlugin.Commands
 
         public static void Reply(IClientPlayer player , string message)
         {
-            var server = player.Game.Host.Character.NetId;
-            var oldName = player.Character.PlayerInfo.PlayerName;
+            uint server;
+            string oldName;
+            byte oldColor;
 
             if (player.IsHost && player.Game.PlayerCount > 1)
             {
                 var serverClient = player.Game.Players.ToList()[1];
                 server = serverClient.Character.NetId;
                 oldName = serverClient.Character.PlayerInfo.PlayerName;
+                oldColor = serverClient.Character.PlayerInfo.ColorId;
             }
             else
             {
                 server = player.Game.Host.Character.NetId;
-                oldName = player.Character.PlayerInfo.PlayerName;
+                oldName = player.Game.Host.Character.PlayerInfo.PlayerName;
+                oldColor = player.Game.Host.Character.PlayerInfo.ColorId;
             }
 
-            using(var w = MessageWriter.Get(MessageType.Reliable))
+            using (var w = MessageWriter.Get(MessageType.Reliable))
             {
                 w.StartMessage(MessageFlags.GameData);
                 w.Write(player.Game.Code);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SetName);
+                StartRpc(w, server, (byte)RpcCalls.SetName);
                 w.Write($"{Colors.Red}Server");
-                w.EndMessage();
+                EndRpc(w);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SendChat);
+                StartRpc(w, server, (byte)RpcCalls.SetColor);
+                w.Write((byte)ColorType.Red);
+                EndRpc(w);
+
+                StartRpc(w, server, (byte)RpcCalls.SendChat);
                 w.Write(message);
-                w.EndMessage();
+                EndRpc(w);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SetName);
+                StartRpc(w, server, (byte)RpcCalls.SetName);
                 w.Write(oldName);
-                w.EndMessage();
+                EndRpc(w);
+
+                StartRpc(w, server, (byte)RpcCalls.SetColor);
+                w.Write(oldColor);
+                EndRpc(w);
 
                 w.EndMessage();
 
@@ -91,33 +97,45 @@ namespace ZirnoPlugin.Commands
             }
         }
 
+        static void StartRpc(IMessageWriter writer, uint senderId, byte rpcFlag)
+        {
+            writer.StartMessage(GameDataTag.RpcFlag);
+            writer.WritePacked(senderId);
+            writer.Write((byte)rpcFlag);
+        }
+
+        static void EndRpc(IMessageWriter writer) => writer.EndMessage();
+
         public static void ReplayToAll(IGame game, string message)
         {
             var server = game.Host.Character.NetId;
             var oldName = game.Host.Character.PlayerInfo.PlayerName;
+            var oldColor = game.Host.Character.PlayerInfo.ColorId;
 
             using (var w = MessageWriter.Get(MessageType.Reliable))
             {
                 w.StartMessage(MessageFlags.GameData);
                 w.Write(game.Code);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SetName);
+                StartRpc(w, server, (byte)RpcCalls.SetName);
                 w.Write($"{Colors.Red}Server");
-                w.EndMessage();
+                EndRpc(w);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SendChat);
+                StartRpc(w, server, (byte)RpcCalls.SetColor);
+                w.Write((byte)ColorType.Red);
+                EndRpc(w);
+
+                StartRpc(w, server, (byte)RpcCalls.SendChat);
                 w.Write(message);
-                w.EndMessage();
+                EndRpc(w);
 
-                w.StartMessage(GameDataTag.RpcFlag);
-                w.WritePacked(server);
-                w.Write((byte)RpcCalls.SetName);
+                StartRpc(w, server, (byte)RpcCalls.SetName);
                 w.Write(oldName);
-                w.EndMessage();
+                EndRpc(w);
+
+                StartRpc(w, server, (byte)RpcCalls.SetColor);
+                w.Write(oldColor);
+                EndRpc(w);
 
                 w.EndMessage();
 

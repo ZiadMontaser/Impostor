@@ -18,7 +18,7 @@ namespace ZirnoPlugin.Viresed
     class VireusPlugin : Plugin
     {
         const int UPDATE_RATE = 100;
-        const int ROUND_LONG = 60 * 1000;
+        private int _RoundLong = 60 * 1000;
 
         private readonly Random Random;
         private readonly Outfit viresdOutfit;
@@ -35,7 +35,17 @@ namespace ZirnoPlugin.Viresed
         bool isInCoolDown = false;
 
         int timer = 0;
-        int nextTick = 10*1000;
+        int nextTick = 10 * 1000;
+
+        public int RoundLong{
+            set
+            {
+                if(value > 90) _RoundLong = 90 * 1000;
+                else if(value < 20) _RoundLong = 20 * 1000;
+                else _RoundLong = value * 1000;
+            }
+            get => _RoundLong / 1000;
+        }
 
         public VireusPlugin()
         {
@@ -65,6 +75,8 @@ namespace ZirnoPlugin.Viresed
         {
             SetVirusedAsync(GetRandomAlivePLayer(e.Game));
 
+            SetGameOptions(e.Game);
+
             updateThread = new Thread(async () => await UpdateAsync(e.Game));
 
             updateThread.Start();
@@ -80,8 +92,15 @@ namespace ZirnoPlugin.Viresed
 
         public override void OnPlayerDestroyed(IPlayerDestroyedEvent e)
         {
-            if(e.ClientPlayer == viresed)
+            if (e.Game.GameState == GameStates.Started)
             {
+                foreach (var player in e.Game.Players)
+                {
+                    if (player.Character.NetId == viresed.Character.NetId)
+                    {
+                        return;
+                    }
+                }
                 SetVirusedAsync(GetNearestAlivePLayer(e.Game));
             }
         }
@@ -100,7 +119,7 @@ namespace ZirnoPlugin.Viresed
                         var c = player.Character;
                         if (isDead(player)) continue;
 
-                        if (Vector2.Distance(viresedPos, c.NetworkTransform.TargetPosition) < 0.66f)
+                        if (Vector2.DistanceSquared(viresedPos, c.NetworkTransform.TargetPosition) < 0.66f * 0.66f)
                         {
                             await SetVirusedAsync(player);
                             break;
@@ -114,11 +133,11 @@ namespace ZirnoPlugin.Viresed
                 if(timer >= nextTick)
                 {
                     //Do Stuff
-                    CommandPlugin.ReplayToAll(game , $"Time Left {ROUND_LONG - timer}");
+                    CommandPlugin.ReplayToAll(game , $"Time Left {_RoundLong - timer}");
                     nextTick = GenerateNextTickDelay() + timer ;
                 }
 
-                if(timer >= ROUND_LONG)
+                if(timer >= _RoundLong)
                 {
                     await KillPLayerAsync(viresed);
                     if(ShouldEndGame(game))
@@ -138,7 +157,7 @@ namespace ZirnoPlugin.Viresed
 
         int GenerateNextTickDelay()
         {
-            var timeLeft = ROUND_LONG - timer;
+            var timeLeft = _RoundLong - timer;
             return timeLeft / 5;
         }
 
@@ -197,19 +216,25 @@ namespace ZirnoPlugin.Viresed
         {
             IClientPlayer player = null;
             var viresPos = viresed.Character.NetworkTransform.TargetPosition;
-            var leastDis = 100f;
+            var leastDis = float.MaxValue;
             foreach (var p in game.Players)
             {
-                if (isDead(p))
-                {
-                    continue;
-                }
-                float playerDistance = Vector2.Distance(viresPos, p.Character.NetworkTransform.TargetPosition);
+                if (isDead(p)) continue;
+
+                float playerDistance = Vector2.DistanceSquared(viresPos, p.Character.NetworkTransform.TargetPosition);
                 if (playerDistance < leastDis)
                 {
                     leastDis = playerDistance;
                     player = p;
                 }
+            }
+            if (player != null)
+            {
+                Console.WriteLine("Nearst PLayer is {0}", player.Character.PlayerInfo.PlayerName);
+            }
+            else
+            {
+                Console.WriteLine(" ------------------- No Player Found ------------------- ");
             }
             return player;
         }

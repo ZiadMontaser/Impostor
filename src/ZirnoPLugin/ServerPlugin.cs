@@ -9,11 +9,11 @@ namespace ZirnoPlugin
         name: "ZirnoServerPlugin",
         author: "Ziad",
         version: "1.0.0")]
-    public class ZirnoPlugin : PluginBase
+    public class ServerPlugin : PluginBase
     {
-        private readonly ILogger<ZirnoPlugin> _logger;
+        private readonly ILogger<ServerPlugin> _logger;
 
-        public ZirnoPlugin(ILogger<ZirnoPlugin> logger)
+        public ServerPlugin(ILogger<ServerPlugin> logger)
         {
             _logger = logger;
         }

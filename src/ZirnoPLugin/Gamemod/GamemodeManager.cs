@@ -45,5 +45,10 @@ namespace ZirnoPlugin.Gamemode
             return games[game].mode;
         }
 
+        public static Plugin Get(IGame game)
+        {
+            return games[game];
+        }
+
     }
 }
