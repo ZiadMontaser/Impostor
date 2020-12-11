@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using Impostor.Api.Events.Managers;
@@ -192,7 +192,9 @@ namespace Impostor.Server
                     services.AddSingleton<IGameCodeFactory, GameCodeFactory>();
                     services.AddSingleton<IEventManager, EventManager>();
                     services.AddSingleton<Matchmaker>();
+                    services.AddSingleton<Announcements>();
                     services.AddHostedService<MatchmakerService>();
+                    services.AddHostedService<AnnouncementsService>();
                 })
                 .UseSerilog()
                 .UseConsoleLifetime()
