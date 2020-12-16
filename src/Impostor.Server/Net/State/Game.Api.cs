@@ -64,12 +64,14 @@ namespace Impostor.Server.Net.State
                     throw new ImpostorException("Attempted to set infected when the player not found");
                 }
 
-                using (var writer = StartRpc(GameNet.GameData.NetId, RpcCalls.UpdateGameData))
-                {
-                    GameNet.GameData.SerializeUpdateGamedataRpc(writer);
+                playerInfo.IsImpostor = true;
+            }
 
-                    await FinishRpcAsync(writer);
-                }
+            using (var writer = StartRpc(GameNet.GameData.NetId, RpcCalls.UpdateGameData))
+            {
+                GameNet.GameData.SerializeUpdateGamedataRpc(writer);
+
+                await FinishRpcAsync(writer);
             }
         }
     }
