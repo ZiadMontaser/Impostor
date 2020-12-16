@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Impostor.Api;
 using Impostor.Api.Innersloth;
@@ -111,6 +112,43 @@ namespace Impostor.Server.Net.Inner.Objects
             }
 
             return default;
+        }
+
+        public void SerializeUpdateGamedataRpc(IMessageWriter writer)
+        {
+            foreach (var player in _game.Players)
+            {
+                var playerInfo = GetPlayerById(player.Character.PlayerId);
+                writer.StartMessage(player.Character.PlayerId);
+                writer.Write(playerInfo.PlayerName);
+                writer.Write(playerInfo.ColorId);
+                writer.WritePacked(playerInfo.HatId);
+                writer.WritePacked(playerInfo.PetId);
+                writer.WritePacked(playerInfo.SkinId);
+
+                byte flag = (byte)CharacterStates.None;
+
+                if (playerInfo.IsImpostor)
+                {
+                    flag |= (byte)CharacterStates.Impostor;
+                }
+                else if (playerInfo.IsDead)
+                {
+                    flag |= (byte)CharacterStates.Dead;
+                }else if (playerInfo.LastDeathReason == DeathReason.Disconnect)
+                {
+                    flag |= (byte)CharacterStates.Disconnected;
+                }
+
+                writer.Write((byte)flag);
+                writer.Write((byte)playerInfo.Tasks.Count());
+                foreach (var task in playerInfo.Tasks)
+                {
+                    task.Serialize(writer);
+                }
+
+                writer.EndMessage();
+            }
         }
 
         public override bool Serialize(IMessageWriter writer, bool initialState)

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -54,16 +54,22 @@ namespace Impostor.Server.Net.State
                 throw new ImpostorException("Attempted to set infected when the host was not spawned.");
             }
 
-            using (var writer = StartRpc(Host.Character.NetId, RpcCalls.SetInfected))
+            foreach (var player in players)
             {
-                writer.Write((byte)Host.Character.NetId);
+                var playerId = player.PlayerId;
+                var playerInfo = GameNet.GameData.GetPlayerById(playerId);
 
-                foreach (var player in players)
+                if (playerInfo == null)
                 {
-                    writer.Write((byte)player.PlayerId);
+                    throw new ImpostorException("Attempted to set infected when the player not found");
                 }
 
-                await FinishRpcAsync(writer);
+                using (var writer = StartRpc(GameNet.GameData.NetId, RpcCalls.UpdateGameData))
+                {
+                    GameNet.GameData.SerializeUpdateGamedataRpc(writer);
+
+                    await FinishRpcAsync(writer);
+                }
             }
         }
     }
