@@ -50,6 +50,7 @@ namespace ZirnoPlugin.Handlers
         public async ValueTask OnPlayerChat(IPlayerChatEvent e)
         {
             CommandPlugin.OnPLayerChat(e);
+            GamemodeManager.games[e.Game].OnPlayerChat(e);
             //VireusPlugin.OnPlayerChat(e);
             if (e.Message.StartsWith('/'))
             {
