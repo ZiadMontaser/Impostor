@@ -134,5 +134,15 @@ namespace Impostor.Server.Net.Inner.Objects
             // Notify plugins.
             await _eventManager.CallAsync(new PlayerMurderEvent(_game, impostor, impostor.Character, this));
         }
+
+        public void SetImpostor()
+        {
+            PlayerInfo.IsImpostor = true;
+        }
+
+        public void SetCrewmate()
+        {
+            PlayerInfo.IsImpostor = true;
+        }
     }
 }

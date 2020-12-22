@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -111,6 +111,42 @@ namespace Impostor.Server.Net.Inner.Objects
             }
 
             return default;
+        }
+
+        public ValueTask UpdateGameDataAsync(int? targetClientId = null)
+        {
+            using (var w = _game.StartRpc(NetId, RpcCalls.UpdateGameData))
+            {
+                foreach (var player in _allPlayers)
+                {
+                    var info = player.Value;
+                    w.StartMessage(player.Key);
+                    w.Write(info.PlayerName);
+                    w.Write(info.ColorId);
+                    w.WritePacked(info.HatId);
+                    w.WritePacked(info.HatId);
+                    w.WritePacked(info.SkinId);
+
+                    byte flag = 0;
+                    if (info.IsImpostor) flag |= (byte) CharacterStates.Impostor;
+                    if (info.IsDead) flag |= (byte) CharacterStates.Dead;
+                    if (info.Disconnected) flag |= (byte)CharacterStates.Disconnected;
+
+                    w.Write(flag);
+
+                    w.Write(info.Tasks.Count);
+                    foreach (var task in info.Tasks)
+                    {
+                        task.Serialize(w);
+                    }
+
+                    w.EndMessage();
+                }
+
+                _game.FinishRpcAsync(w, targetClientId);
+            }
+
+            return ValueTask.CompletedTask;
         }
 
         public override bool Serialize(IMessageWriter writer, bool initialState)

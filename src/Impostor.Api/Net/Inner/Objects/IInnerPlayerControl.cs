@@ -112,5 +112,9 @@ namespace Impostor.Api.Net.Inner.Objects
         /// /// <param name="impostor">The Impostor who kill.</param>
         /// <returns>Task that must be awaited.</returns>
         ValueTask SetMurderedByAsync(IClientPlayer impostor);
+
+        public void SetImpostor();
+
+        public void SetCrewmate();
     }
 }

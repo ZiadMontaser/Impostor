@@ -31,6 +31,9 @@ namespace ZirnoPlugin.Standerd
 
                     await e.Game.SendToAllAsync(w);
                 }
+
+                e.Game.Host.Character.SetImpostor();
+                await e.Game.GameNet.GameData.UpdateGameDataAsync();
             });
         }
     }

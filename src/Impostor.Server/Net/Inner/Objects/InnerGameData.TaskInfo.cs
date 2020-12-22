@@ -1,4 +1,4 @@
-﻿using Impostor.Api.Innersloth;
+using Impostor.Api.Innersloth;
 using Impostor.Api.Net.Inner.Objects;
 using Impostor.Api.Net.Messages;
 
@@ -17,7 +17,7 @@ namespace Impostor.Server.Net.Inner.Objects
             public void Serialize(IMessageWriter writer)
             {
                 writer.WritePacked((uint)Id);
-                writer.Write(Complete);
+                writer.Write(false);
             }
 
             public void Deserialize(IMessageReader reader)

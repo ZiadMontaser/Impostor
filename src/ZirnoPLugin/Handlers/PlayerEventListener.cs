@@ -6,6 +6,7 @@ using Impostor.Api.Events.Player;
 using ZirnoPlugin.Gamemode;
 using ZirnoPlugin.Commands;
 using Microsoft.Extensions.Logging;
+using Impostor.Api.Net.Messages;
 
 namespace ZirnoPlugin.Handlers
 {
@@ -14,12 +15,14 @@ namespace ZirnoPlugin.Handlers
         private static readonly Random Random = new Random();
 
         private readonly ILogger<PlayerEventListener> _logger;
+        private readonly IMessageWriterProvider _provider;
 
         CommandPlugin CommandPlugin = new CommandPlugin();
 
-        public PlayerEventListener(ILogger<PlayerEventListener> logger)
+        public PlayerEventListener(ILogger<PlayerEventListener> logger , IMessageWriterProvider provider)
         {
             _logger = logger;
+            _provider = provider;
         }
 
         [EventListener]
