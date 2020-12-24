@@ -34,7 +34,7 @@ namespace ZirnoPlugin.Viresed
             _pet = (PetType) info.PetId;
         }
 
-        public async ValueTask DressUpAsync(IClientPlayer player)
+        public async ValueTask DressUpAsync(IClientPlayer player, int? targetClientId = null)
         {
             using(var w = MessageWriter.Get(MessageType.Reliable))
             {
@@ -67,7 +67,14 @@ namespace ZirnoPlugin.Viresed
 
                 w.EndMessage();
 
-                await player.Game.SendToAllAsync(w);
+                if(targetClientId == null)
+                {
+                    await player.Game.SendToAllAsync(w);
+                }
+                else
+                {
+                    await player.Game.SendToAsync(w, (int)targetClientId);
+                }
             }
         }
     }

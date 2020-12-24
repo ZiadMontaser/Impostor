@@ -142,7 +142,7 @@ namespace Impostor.Server.Net.Inner.Objects
 
         public void SetCrewmate()
         {
-            PlayerInfo.IsImpostor = true;
+            PlayerInfo.IsImpostor = false;
         }
     }
 }

@@ -7,6 +7,8 @@ using ZirnoPlugin.Gamemode;
 using ZirnoPlugin.Commands;
 using Microsoft.Extensions.Logging;
 using Impostor.Api.Net.Messages;
+using Impostor.Api.Net.Inner.Objects;
+using System.Collections.Generic;
 
 namespace ZirnoPlugin.Handlers
 {
@@ -50,6 +52,12 @@ namespace ZirnoPlugin.Handlers
         }
 
         [EventListener]
+        public void OnPlayerMurder(IPlayerMurderEvent e)
+        {
+            GamemodeManager.games[e.Game].OnPlayerMurder(e);
+        }
+
+        [EventListener]
         public async ValueTask OnPlayerChat(IPlayerChatEvent e)
         {
             CommandPlugin.OnPLayerChat(e);
@@ -65,6 +73,14 @@ namespace ZirnoPlugin.Handlers
                         break;
                 }
             }
+        }
+
+        [EventListener]
+        public async ValueTask OnGameSarting(IGameStartingEvent e)
+        {
+            Console.WriteLine("Starting");
+            var players = new List<IInnerPlayerControl> { e.Game.Host.Character };
+            await e.Game.SetInfectedAsync(players);
         }
     }
 }

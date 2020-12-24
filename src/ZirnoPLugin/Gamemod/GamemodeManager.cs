@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Impostor.Api.Games;
 using ZirnoPlugin.Standerd;
 using ZirnoPlugin.Viresed;
+using ZirnoPLugin.RandomImostor;
 
 namespace ZirnoPlugin.Gamemode
 {
@@ -18,15 +19,22 @@ namespace ZirnoPlugin.Gamemode
 
         public static void SetGamemode(IGame game , Gamemodes gamemodes)
         {
-            switch (gamemodes)
+            games[game] = gamemodes switch
             {
-                case Gamemodes.Standerd:
-                    games[game] = new StanderdPlugin();
-                    break;
-                case Gamemodes.HotPotato:
-                    games[game] = new VireusPlugin();
-                    break;
-            }
+                Gamemodes.Standerd => new StanderdPlugin(),
+                Gamemodes.HotPotato => new VireusPlugin(),
+                Gamemodes.RandomImpostor => new RandomImpostor(),
+                _ => new StanderdPlugin(),
+            };
+            //switch (gamemodes)
+            //{
+            //    case Gamemodes.Standerd:
+            //        games[game] = new StanderdPlugin();
+            //        break;
+            //    case Gamemodes.HotPotato:
+            //        games[game] = new VireusPlugin();
+            //        break;
+            //}
         }
 
         public static void CreateGame(IGame game)

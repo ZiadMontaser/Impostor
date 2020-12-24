@@ -4,5 +4,6 @@ namespace ZirnoPlugin.Gamemode
     {
         Standerd,
         HotPotato,
+        RandomImpostor,
     }
 }
