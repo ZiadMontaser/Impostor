@@ -9,22 +9,26 @@ using Microsoft.Extensions.Logging;
 using Impostor.Api.Net.Messages;
 using Impostor.Api.Net.Inner.Objects;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ZirnoPlugin.Handlers
 {
-    public class PlayerEventListener : IEventListener
+    internal class PlayerEventListener : IEventListener
     {
         private static readonly Random Random = new Random();
 
         private readonly ILogger<PlayerEventListener> _logger;
         private readonly IMessageWriterProvider _provider;
+        private readonly IServiceProvider _serviceProvider;
 
-        CommandPlugin CommandPlugin = new CommandPlugin();
+        private readonly CommandPlugin _commandPlugin;
 
-        public PlayerEventListener(ILogger<PlayerEventListener> logger , IMessageWriterProvider provider)
+        public PlayerEventListener(ILogger<PlayerEventListener> logger, IServiceProvider serviceProvider , IMessageWriterProvider provider , CommandPlugin commandPlugin)
         {
             _logger = logger;
             _provider = provider;
+            _serviceProvider = serviceProvider;
+            _commandPlugin = commandPlugin;
         }
 
         [EventListener]
@@ -60,7 +64,7 @@ namespace ZirnoPlugin.Handlers
         [EventListener]
         public async ValueTask OnPlayerChat(IPlayerChatEvent e)
         {
-            CommandPlugin.OnPLayerChat(e);
+            _commandPlugin.OnPLayerChat(e);
             GamemodeManager.games[e.Game].OnPlayerChat(e);
             //VireusPlugin.OnPlayerChat(e);
             if (e.Message.StartsWith('/'))

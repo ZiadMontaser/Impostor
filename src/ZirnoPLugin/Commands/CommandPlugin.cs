@@ -10,22 +10,27 @@ using Impostor.Api.Net;
 using Impostor.Api.Net.Messages;
 using Impostor.Hazel;
 using Impostor.Server.Net.Inner;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ZirnoPlugin.Commands
 {
     class CommandPlugin : Plugin
     {
+        private readonly IServiceProvider _serviceProvider;
+
         List<ICommand> commands = new List<ICommand>();
 
-        public CommandPlugin() {
-        
+        public CommandPlugin(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+
             var asmbly = Assembly.GetExecutingAssembly();
             var typeList = asmbly.GetTypes().Where(
                     t => t.GetCustomAttributes(typeof(CommandAttribute), true).Length > 0
             ).ToList();
             foreach (Type type in typeList)
             {
-                ICommand command = (ICommand)Activator.CreateInstance(type);
+                ICommand command = (ICommand)ActivatorUtilities.CreateInstance( _serviceProvider,type);
                 commands.Add(command);
             }
             Console.WriteLine("Commands Lodded");

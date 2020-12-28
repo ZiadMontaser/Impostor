@@ -7,10 +7,12 @@ using Impostor.Api.Net;
 using Impostor.Hazel;
 using Impostor.Api.Net.Messages;
 using Impostor.Server.Net.Inner;
+using Impostor.Api.Net.Inner.Objects;
+using System.Collections.Generic;
 
 namespace ZirnoPlugin
 {
-     class Plugin
+    partial class Plugin
     {
         public Gamemodes mode { get; protected set; }
 
@@ -44,6 +46,32 @@ namespace ZirnoPlugin
                 w.EndMessage();
 
                 await player.Game.SendToAsync(w, player.Client.Id);
+            }
+        }
+
+        protected async Task EndGameAsync(IGame game, List<IInnerPlayerControl> winners)
+        {
+            foreach (var player in game.Players)
+            {
+                if (winners.Contains(player.Character))
+                {
+                    player.Character.SetImpostor();
+                }
+                else
+                {
+                    player.Character.SetCrewmate();
+                }
+            }
+
+            await game.GameNet.GameData.UpdateGameDataAsync();
+
+            var impostor = game.GetClientPlayer(winners[0].OwnerId);
+            foreach (var player in game.Players)
+            {
+                if (!player.Character.PlayerInfo.IsImpostor)
+                {
+                    player.Character.SetMurderedByAsync(impostor);
+                }
             }
         }
     }

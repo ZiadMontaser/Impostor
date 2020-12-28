@@ -1,31 +1,37 @@
+using System;
 using System.Collections.Generic;
 using Impostor.Api.Games;
+using Microsoft.Extensions.DependencyInjection;
 using ZirnoPlugin.Standerd;
 using ZirnoPlugin.Viresed;
 using ZirnoPLugin.RandomImostor;
+using ZirnoPLugin.Sherif;
 
 namespace ZirnoPlugin.Gamemode
 {
-    static class GamemodeManager
+    internal class GamemodeManager
     {
         const Gamemodes DEFAULT_GAMEMODE = Gamemodes.HotPotato;
 
-        public static Dictionary<IGame, Plugin> games;
+        private IServiceProvider _serviceProvider;
 
-        static GamemodeManager()
+        public static Dictionary<IGame, Plugin> games = new();
+
+        public GamemodeManager(IServiceProvider serviceProvider)
         {
-            games = new Dictionary<IGame, Plugin>();
+            _serviceProvider = serviceProvider;
         }
 
-        public static void SetGamemode(IGame game , Gamemodes gamemodes)
+        public void SetGamemode(IGame game , Gamemodes gamemodes)
         {
-            games[game] = gamemodes switch
+            games[game] = (Plugin)ActivatorUtilities.CreateInstance(_serviceProvider, (gamemodes switch
             {
-                Gamemodes.Standerd => new StanderdPlugin(),
-                Gamemodes.HotPotato => new VireusPlugin(),
-                Gamemodes.RandomImpostor => new RandomImpostor(),
-                _ => new StanderdPlugin(),
-            };
+                Gamemodes.Standerd       => typeof(StanderdPlugin),
+                Gamemodes.HotPotato      => typeof(VireusPlugin),
+                Gamemodes.RandomImpostor => typeof(RandomImpostor),
+                Gamemodes.Sherif         => typeof(Sherif),
+                _ => typeof(StanderdPlugin),
+            })); ;
             //switch (gamemodes)
             //{
             //    case Gamemodes.Standerd:
@@ -37,13 +43,13 @@ namespace ZirnoPlugin.Gamemode
             //}
         }
 
-        public static void CreateGame(IGame game)
+        public void CreateGame(IGame game)
         {
             games.Add(game, null);
             SetGamemode(game, DEFAULT_GAMEMODE);
         }
 
-        public static void DeleteGame(IGame game)
+        public void DeleteGame(IGame game)
         {
             games.Remove(game);
         }

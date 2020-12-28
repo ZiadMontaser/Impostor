@@ -4,8 +4,14 @@ using ZirnoPlugin.Gamemode;
 
 namespace ZirnoPlugin.Handlers
 {
-    public class GameEventListener : IEventListener
+    internal class GameEventListener : IEventListener
     {
+        private readonly GamemodeManager _gamemodeManager;
+        public GameEventListener(GamemodeManager gamemodeManager)
+        {
+            _gamemodeManager = gamemodeManager;
+        }
+
         [EventListener(EventPriority.Monitor)]
         public void OnGame(IGameEvent e)
         {
@@ -16,7 +22,7 @@ namespace ZirnoPlugin.Handlers
         public void OnGameCreated(IGameCreatedEvent e)
         {
             Console.WriteLine("Game > created");
-            GamemodeManager.CreateGame(e.Game);
+            _gamemodeManager.CreateGame(e.Game);
         }
 
 
@@ -24,7 +30,7 @@ namespace ZirnoPlugin.Handlers
         public void OnGameDestroyed(IGameDestroyedEvent e)
         {
             Console.WriteLine("Game > destroyed");
-            GamemodeManager.DeleteGame(e.Game);
+            _gamemodeManager.DeleteGame(e.Game);
         }
 
         [EventListener]

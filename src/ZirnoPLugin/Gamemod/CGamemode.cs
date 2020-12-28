@@ -13,14 +13,23 @@ namespace ZirnoPlugin.Gamemode
     class CGm : CGamemode
     {
         public override string Names => "gm";
+
+        public CGm(GamemodeManager gamemodeManager) : base(gamemodeManager) { }
     }
 
     [Command]
     class CGamemode : ICommand
     {
+        private readonly GamemodeManager _gamemodeManager;
+
         public virtual string Names => "gamemode";
 
         public string Discription => "Changes Gamemode using: /gamemode <gamemode>";
+
+        public CGamemode(GamemodeManager gamemodeManager)
+        {
+            _gamemodeManager = gamemodeManager;
+        }
 
         public void excute(IClientPlayer player, string[] param)
         {
@@ -45,14 +54,14 @@ namespace ZirnoPlugin.Gamemode
                 g--;
                 if(g < Enum.GetValues(typeof(Gamemodes)).Length)
                 {
-                    GamemodeManager.SetGamemode(player.Game, (Gamemodes)g);
+                    _gamemodeManager.SetGamemode(player.Game, (Gamemodes)g);
                     onGamemodeChange(player);
                     return;
                 }
             }
             else if(Enum.TryParse(param[1] , out Gamemodes ga))
             {
-                GamemodeManager.SetGamemode(player.Game, ga);
+                _gamemodeManager.SetGamemode(player.Game, ga);
                 onGamemodeChange(player);
                 return;
             }

@@ -184,10 +184,10 @@ namespace ZirnoPlugin.Viresed
 
         private async Task EndGameAsync(IGame game) {
             await Task.Delay(1 * 1000);
-            var impostor = game.Players.ToList().Find((x) => x.Character.PlayerInfo.IsImpostor && !x.Character.PlayerInfo.IsDead);
-            foreach(var p in game.Players)
+            //var impostor = game.Players.ToList().Find((x) => x.Character.PlayerInfo.IsImpostor && !x.Character.PlayerInfo.IsDead);
+            foreach(var p in game.Players.Where((x)=>x.Character.PlayerInfo.IsImpostor))
             {
-                await p.Character.SetMurderedByAsync(impostor);
+                await p.Character.SetMurderedByAsync(p);
             }
         }
 
